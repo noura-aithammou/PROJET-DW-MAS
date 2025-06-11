@@ -26,38 +26,30 @@ dag = DAG(
     tags=['banking', 'reviews', 'dbt', 'data-warehouse'],
 )
 
-# =====================================
-# VARIABLES DE CONFIGURATION
-# =====================================
 
-# CHEMIN CORRECT DE VOTRE PROJET DBT
+
 DBT_PROJECT_PATH = "/home/noura/dbt_project/morocco_banks_reviews"
 VENV_PATH = "/home/noura/venv"
 SCRIPTS_PATH = "/home/noura/airflow/scripts"
 
-# =====================================
-# PHASE 1: COLLECTE DES DONNÉES
-# =====================================
 
-# Tâche 1: Scraping Google Maps (votre script existant)
+
+
 run_scraping_script = BashOperator(
     task_id='run_scraping_script',
     bash_command=f'{VENV_PATH}/bin/python {SCRIPTS_PATH}/script1.py',
     dag=dag,
 )
 
-# Tâche 2: Insertion en table staging (votre script existant)
 insert_data_to_postgres = BashOperator(
     task_id='insert_data_to_postgres',
     bash_command=f'{VENV_PATH}/bin/python {SCRIPTS_PATH}/insert_into_postgres.py',
     dag=dag,
 )
 
-# =====================================
-# PHASE 2: VÉRIFICATION ET PRÉPARATION DBT
-# =====================================
 
-# Tâche 3: Vérification de la configuration DBT
+
+
 dbt_debug = BashOperator(
     task_id='dbt_debug_check',
     bash_command=f'''
@@ -67,7 +59,7 @@ dbt_debug = BashOperator(
     dag=dag,
 )
 
-# Tâche 4: Installation/mise à jour des packages DBT
+
 dbt_deps = BashOperator(
     task_id='dbt_install_dependencies',
     bash_command=f'''
@@ -77,11 +69,9 @@ dbt_deps = BashOperator(
     dag=dag,
 )
 
-# =====================================
-# PHASE 3: TRANSFORMATION DBT - STAGING
-# =====================================
 
-# Tâche 5: DBT Staging - Nettoyage initial
+
+
 dbt_staging = BashOperator(
     task_id='dbt_run_staging',
     bash_command=f'''
@@ -91,7 +81,7 @@ dbt_staging = BashOperator(
     dag=dag,
 )
 
-# Tâche 6: DBT Intermediate - Déduplication et nettoyage avancé
+
 dbt_intermediate = BashOperator(
     task_id='dbt_run_intermediate',
     bash_command=f'''
@@ -101,22 +91,14 @@ dbt_intermediate = BashOperator(
     dag=dag,
 )
 
-# =====================================
-# PHASE 4: ENRICHISSEMENT NLP
-# =====================================
 
-# Tâche 7: Analyse LDA pour extraction des topics
 run_lda_analysis = BashOperator(
     task_id='run_lda_topic_analysis',
     bash_command=f'{VENV_PATH}/bin/python {SCRIPTS_PATH}/lda_topic_modeling.py',
     dag=dag,
 )
 
-# =====================================
-# PHASE 5: MODÉLISATION DIMENSIONNELLE DBT
-# =====================================
 
-# Tâche 8: Création de la mart enrichie
 dbt_mart_enriched = BashOperator(
     task_id='dbt_run_mart_enriched',
     bash_command=f'''
@@ -126,7 +108,7 @@ dbt_mart_enriched = BashOperator(
     dag=dag,
 )
 
-# Tâche 9: Construction des dimensions
+
 dbt_dimensions = BashOperator(
     task_id='dbt_run_dimensions',
     bash_command=f'''
@@ -136,7 +118,7 @@ dbt_dimensions = BashOperator(
     dag=dag,
 )
 
-# Tâche 10: Construction de la table de faits
+
 dbt_fact_table = BashOperator(
     task_id='dbt_run_fact_table',
     bash_command=f'''
@@ -146,11 +128,9 @@ dbt_fact_table = BashOperator(
     dag=dag,
 )
 
-# =====================================
-# PHASE 6: TESTS ET VALIDATION
-# =====================================
 
-# Tâche 11: Tests de qualité DBT
+
+
 dbt_tests = BashOperator(
     task_id='dbt_run_tests',
     bash_command=f'''
@@ -160,7 +140,7 @@ dbt_tests = BashOperator(
     dag=dag,
 )
 
-# Tâche 12: Génération de la documentation DBT
+
 dbt_docs = BashOperator(
     task_id='dbt_generate_docs',
     bash_command=f'''
@@ -171,14 +151,12 @@ dbt_docs = BashOperator(
     dag=dag,
 )
 
-# =====================================
-# PHASE 7: OPTIMISATION POUR DASHBOARDS
-# =====================================
 
-# Tâche 13: Création des vues matérialisées pour Looker Studio
+
+
 create_dashboard_views = PostgresOperator(
     task_id='create_dashboard_materialized_views',
-    postgres_conn_id='postgres_default',  # Utilisez votre connexion Airflow
+    postgres_conn_id='postgres_default',  
     sql=f'''
     -- Vue pour tendances sentiment par banque
     DROP MATERIALIZED VIEW IF EXISTS marts.mv_sentiment_trends_by_bank CASCADE;
@@ -248,9 +226,7 @@ create_dashboard_views = PostgresOperator(
     dag=dag,
 )
 
-# =====================================
-# PHASE 8: VALIDATION ET MONITORING
-# =====================================
+
 
 def validate_pipeline_data(**context):
     """Validation des données du pipeline"""
@@ -265,7 +241,7 @@ def validate_pipeline_data(**context):
             password="airflow"
         )
         
-        # Vérifications critiques
+        
         checks = {
             'total_reviews': "SELECT COUNT(*) as count FROM marts.fact_reviews",
             'banks_count': "SELECT COUNT(DISTINCT bank_key) as count FROM marts.fact_reviews WHERE bank_key > 0",
@@ -286,7 +262,7 @@ def validate_pipeline_data(**context):
         
         conn.close()
         
-        # Validations métier
+       
         total_reviews = results['total_reviews'][0]['count']
         banks_count = results['banks_count'][0]['count']
         recent_data = results['recent_data'][0]['count']
@@ -311,14 +287,14 @@ def validate_pipeline_data(**context):
         print(f"❌ ERREUR lors de la validation: {e}")
         raise
 
-# Tâche 14: Validation des données
+
 validate_data_quality = PythonOperator(
     task_id='validate_pipeline_data_quality',
     python_callable=validate_pipeline_data,
     dag=dag,
 )
 
-# Tâche 15: Notification de fin
+
 send_success_notification = BashOperator(
     task_id='send_pipeline_success_notification',
     bash_command=f'''
@@ -343,30 +319,28 @@ send_success_notification = BashOperator(
     dag=dag,
 )
 
-# =====================================
-# DÉFINITION DES DÉPENDANCES
-# =====================================
 
-# Phase 1: Collecte des données
+
+
 run_scraping_script >> insert_data_to_postgres
 
-# Phase 2: Préparation DBT
+
 insert_data_to_postgres >> dbt_debug >> dbt_deps
 
-# Phase 3: Transformations DBT Staging/Intermediate
+
 dbt_deps >> dbt_staging >> dbt_intermediate
 
-# Phase 4: Enrichissement NLP
+
 dbt_intermediate >> run_lda_analysis
 
-# Phase 5: Modélisation dimensionnelle
+
 run_lda_analysis >> dbt_mart_enriched >> dbt_dimensions >> dbt_fact_table
 
-# Phase 6: Tests et documentation
+
 dbt_fact_table >> dbt_tests >> dbt_docs
 
-# Phase 7: Optimisation dashboards
+
 dbt_docs >> create_dashboard_views
 
-# Phase 8: Validation et notification
+
 create_dashboard_views >> validate_data_quality >> send_success_notification
