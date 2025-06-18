@@ -300,21 +300,6 @@ send_success_notification = BashOperator(
     bash_command=f'''
     echo "🎉 PIPELINE DATA WAREHOUSE TERMINÉ AVEC SUCCÈS!"
     echo "================================================"
-    echo "📅 Date d'exécution: {{{{ ds }}}}"
-    echo "📁 Projet DBT: {DBT_PROJECT_PATH}"
-    echo "🏦 Données disponibles dans le schéma 'marts'"
-    echo "📈 Vues matérialisées créées pour Looker Studio:"
-    echo "   - marts.mv_sentiment_trends_by_bank"
-    echo "   - marts.mv_city_bank_performance" 
-    echo "   - marts.mv_topic_insights"
-    echo "📚 Documentation DBT: {DBT_PROJECT_PATH}/target/index.html"
-    echo ""
-    echo "🔗 Connexion PostgreSQL pour Looker Studio:"
-    echo "   Host: localhost"
-    echo "   Database: bank_maroc"
-    echo "   Schema: marts"
-    echo ""
-    echo "✅ Pipeline prêt pour l'analyse business intelligence!"
     ''',
     dag=dag,
 )
