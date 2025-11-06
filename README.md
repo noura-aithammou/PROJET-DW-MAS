@@ -10,7 +10,7 @@ Centraliser, nettoyer, enrichir et analyser les avis clients afin de produire de
 - Table de staging PostgreSQL pour garantir un point d'ingestion stable.
 - Table enrichie avec informations sémantiques.
 - Schéma en étoile pour les analyses (fact_reviews, dim_bank, dim_branch, dim_location, dim_topic, dim_sentiment).
-- Dashboards interactifs et exports PNG/CSV pour visualisation.
+- Dashboards interactifs et exports .
 
 ## Pile technique (versions recommandées)
 - Python 3.8+
