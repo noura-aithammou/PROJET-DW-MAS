@@ -112,4 +112,4 @@ Centraliser, nettoyer, enrichir et analyser les avis clients afin de produire de
 **Objectif :** Fournir des tableaux de bord interactifs et KPI synthétiques  
 **Bonnes pratiques :**
 - Utiliser des vues matérialisées ou marts pour optimiser les temps de réponse
-- Documenter les métriques (définition, fenêtre temporelle, agrégation)
+
